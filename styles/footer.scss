@@ -6,6 +6,7 @@
     align-items: center;
     justify-content: center;
     border-top: none;
+    margin-top: 15px;
 
     span {
         display: none;
@@ -33,6 +34,7 @@
     @media screen and (min-width: $mediaQueryDesktop) {
         border-top: 1px solid $lightGreyColor;
         padding: 15px;
+        // margin-top: 15px;
 
         button {
             display: none;

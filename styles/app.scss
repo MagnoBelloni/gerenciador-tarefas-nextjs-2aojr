@@ -63,6 +63,17 @@ select {
     }
 }
 
+button {
+    width: 100%;
+    height: 56px;
+    background-color: $primaryColor;
+    border: none;
+    color: white;
+    border-radius: 12px;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
 @media screen and (min-width: $mediaQueryDesktop) {
 
     input,

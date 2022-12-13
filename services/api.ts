@@ -9,7 +9,7 @@ export const executeRequest = (endpoint: string, method: Method, body?: any) => 
     }
 
     const URL = 'http://localhost:3000/api/' + endpoint;
-    console.log(`executando: ${URL}, método: ${method} e body: ${body}`);
+    console.log(`executando: ${URL}, método: ${method} e body: ${body ? JSON.stringify(body) : 'none'}`);
     return axios.request({
         url: URL,
         method,

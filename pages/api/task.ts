@@ -24,6 +24,8 @@ const login = async (req: NextApiRequest, res: NextApiResponse<DefaultMessageRes
         return await updateTask(req, res, userId);
       case 'DELETE':
         return await deleteTask(req, res, userId);
+      case 'PATCH':
+        return await markAsDone(req, res, userId);
       default:
         return res.status(405).json({ error: "O Método HTTP informado não existe" });
     }
@@ -158,6 +160,18 @@ const updateTask = async (req: NextApiRequest, res: NextApiResponse<DefaultMessa
   }
 
   return res.status(400).json({ error: 'Parametro de entrada invalidos' });
+}
+
+const markAsDone = async (req: NextApiRequest, res: NextApiResponse<DefaultMessageResponse | Task[]>, userId: string) => {
+  const taskFound = await validateTaskAndReturnValue(req, userId);
+  if (!taskFound) {
+    return res.status(400).json({ error: 'Tarefa nao encontrada' });
+  }
+
+  const { done } = req.body;
+  taskFound.finishDate = done ? new Date().toString() : null
+  await TaskModel.findByIdAndUpdate({ _id: taskFound._id }, taskFound);
+  return res.status(200).json({ message: 'Tarefa atualizada com sucesso' });
 }
 
 export default connectToDB(jwtValidator(login));

@@ -9,6 +9,13 @@
     border-radius: 12px;
     padding: 10px 15px;
 
+    .task {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
     .title {
         display: flex;
         align-items: center;
