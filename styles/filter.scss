@@ -1,20 +1,13 @@
 @import './config.scss';
 
-.container-filters {
+.container-filter {
     display: flex;
     flex-direction: column;
     width: 96%;
     margin-top: 16px;
-    background-color: $mediumGreyColorOpacity;
+    background-color: $mediumGreyColorOpcacity;
     border-radius: 12px;
     padding: 10px 15px;
-
-    .task {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-start;
-    }
 
     .title {
         display: flex;
@@ -33,11 +26,10 @@
         }
     }
 
-    .mobiles-filters {
+    .mobile-filters {
         display: flex;
         flex-direction: column;
         align-items: flex-end;
-
         margin-top: 15px;
 
         div {
@@ -58,7 +50,7 @@
     @media screen and (min-width: $mediaQueryDesktop) {
         padding: 20px;
 
-        .mobiles-filters {
+        .mobile-filters {
             display: none;
         }
 

@@ -1,13 +1,13 @@
-/* eslint-disable @next/next/no-img-element */
 import { NextPage } from "next";
 import { useState } from "react";
 import { executeRequest } from "../services/api";
 
 type LoginProps = {
     setToken(s: string): void
+    setRegister(s: Boolean): void
 }
 
-export const Login: NextPage<LoginProps> = ({ setToken }) => {
+export const Login: NextPage<LoginProps> = ({ setToken, setRegister }) => {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -67,6 +67,7 @@ export const Login: NextPage<LoginProps> = ({ setToken }) => {
                         onChange={evento => setPassword(evento.target.value)}
                     />
                 </div>
+                <a onClick={() => setRegister(true)}>Ainda não tem uma conta? Clique aqui para se cadastrar.</a>
                 <button onClick={doLogin} disabled={loading}>{loading ? '...Carregando' : 'Login'}</button>
             </div>
         </div>

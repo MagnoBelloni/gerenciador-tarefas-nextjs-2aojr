@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Home } from '../containers/Home';
 import { Login } from '../containers/Login'
+import { Register } from '../containers/Register';
 
 export default function Index() {
   const [token, setToken] = useState<string | null>('');
+  const [register, setRegister] = useState<Boolean>(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -12,5 +14,5 @@ export default function Index() {
     }
   }, []);
 
-  return token ? <Home setToken={setToken} /> : <Login setToken={setToken} />;
+  return token ? <Home setToken={setToken} /> : register ? <Register setRegister={setRegister} /> : <Login setToken={setToken} setRegister={setRegister} />;
 }

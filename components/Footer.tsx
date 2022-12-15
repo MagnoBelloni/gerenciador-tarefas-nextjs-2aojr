@@ -1,15 +1,12 @@
-/* eslint-disable jsx-a11y/alt-text */
-/* eslint-disable @next/next/no-img-element */
-import type { NextPage } from "next";
+import { NextPage } from "next";
 type FooterProps = {
-    openAddModal(): void
+    toggleModal(): void
 }
-
-export const Footer: NextPage<FooterProps> = ({ openAddModal }) => {
+export const Footer: NextPage<FooterProps> = ({ toggleModal }) => {
     return (
         <div className="container-footer">
-            <button onClick={openAddModal}><img src="/add.svg" />Adicionar uma tarefa</button>
             <span>© Copyright {new Date().getFullYear()}. Todos os direitos reservados.</span>
+            <button onClick={toggleModal}><img src="/add.svg" alt="Adicionar tarefa" />Adicionar uma tarefa</button>
         </div>
     );
 }

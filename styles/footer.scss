@@ -6,7 +6,6 @@
     align-items: center;
     justify-content: center;
     border-top: none;
-    margin-top: 15px;
 
     span {
         display: none;
@@ -17,14 +16,14 @@
         align-items: center;
         justify-content: flex-start;
         height: 48px;
-        border-radius: 12px;
-        background-color: $mediumGreyColorOpacity;
         width: 96%;
+        background-color: $mediumGreyColorOpcacity;
         border: none;
         outline: none;
         color: $primaryColor;
-        padding: 0px 15px;
-
+        border-radius: 12px;
+        border: 1px solid $primaryColor;
+        margin-bottom: 10px;
 
         img {
             margin-right: 15px;
@@ -34,7 +33,6 @@
     @media screen and (min-width: $mediaQueryDesktop) {
         border-top: 1px solid $lightGreyColor;
         padding: 15px;
-        // margin-top: 15px;
 
         button {
             display: none;

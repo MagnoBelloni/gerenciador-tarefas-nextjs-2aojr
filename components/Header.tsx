@@ -1,26 +1,25 @@
-/* eslint-disable @next/next/no-img-element */
-
-import type { NextPage } from "next";
+import { NextPage } from "next";
 
 type HeaderProps = {
-    sair(): void,
-    openAddModal(): void
+    sair(): void
+    toggleModal(): void
 }
-export const Header: NextPage<HeaderProps> = ({ sair, openAddModal }) => {
+
+export const Header: NextPage<HeaderProps> = ({ sair, toggleModal }) => {
     const fullName = localStorage.getItem('name');
-    const firstName = fullName?.split(' ')[0].trim() || '';
+    const firstName = fullName?.split(' ')[0] || '';
 
     return (
         <div className="container-header">
             <img src="/logo.svg" alt="Logo Fiap" className="logo" />
-            <button onClick={openAddModal}><span>+</span>Adicionar Tarefa</button>
-            <div className="mobile">
-                <span>Olá, {firstName}</span>
-                <img src="/exit-mobile.svg" alt="Sair" onClick={sair} />
-            </div>
+            <button onClick={toggleModal}><span>+</span>Adicionar tarefa</button>
             <div className="desktop">
                 <span>Olá, {firstName}</span>
                 <img src="/exit-desktop.svg" alt="Sair" onClick={sair} />
+            </div>
+            <div className="mobile">
+                <span>Olá, {firstName}</span>
+                <img src="/exit-mobile.svg" alt="Sair" onClick={sair} />
             </div>
         </div>
     );

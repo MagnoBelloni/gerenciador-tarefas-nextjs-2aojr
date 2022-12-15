@@ -1,42 +1,34 @@
-/* eslint-disable @next/next/no-img-element */
 import { NextPage } from "next";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Filter } from "../components/Filter";
 import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
 import { executeRequest } from "../services/api";
-import { Task } from "../types/Task";
 import Modal from 'react-bootstrap/Modal';
+import { List } from "../components/List";
 
 type HomeProps = {
     setToken(s: string): void
 }
 
 export const Home: NextPage<HomeProps> = ({ setToken }) => {
+    const ref = useRef();
+
+    // STATES FILTER
+    const [list, setList] = useState([]);
     const [previsionDateStart, setPrevisionDateStart] = useState('');
     const [previsionDateEnd, setPrevisionDateEnd] = useState('');
     const [status, setStatus] = useState(0);
-    const [tasks, setTasks] = useState<Task[]>([]);
+
+    // STATES MODAL
     const [showModal, setShowModal] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [errorMsg, setErrorMsg] = useState('');
     const [name, setName] = useState('');
     const [finishPrevisionDate, setFinishPrevisionDate] = useState('');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
-
-    const getTasks = async () => {
-        const result = await executeRequest(`task?finishPrevisionStart=${previsionDateStart}&finishPrevisionEnd=${previsionDateEnd}&status=${status}`, 'get');
-        result.data.map((task: Task) => {
-            const finishPrevisionDateDateTime = new Date(task.finishPrevisionDate);
-            task.finishPrevisionDate = `${finishPrevisionDateDateTime.getDate()}/${finishPrevisionDateDateTime.getMonth()}/${finishPrevisionDateDateTime.getFullYear()}`;
-
-            const finishDateDateTime = new Date(task.finishDate);
-            task.finishDate = !task.finishDate ? '-' : `${finishDateDateTime.getDate()}/${finishDateDateTime.getMonth()}/${finishDateDateTime.getFullYear()}`;
-        });
-        setTasks(result.data);
-    }
 
     useEffect(() => {
-        getTasks();
+        getFilteredData();
     }, [previsionDateStart, previsionDateEnd, status]);
 
     const sair = () => {
@@ -44,15 +36,40 @@ export const Home: NextPage<HomeProps> = ({ setToken }) => {
         setToken('');
     }
 
-    const handleClose = () => setShowModal(false);
-    const handleShow = () => setShowModal(true);
-
-    const submitAddForm = async () => {
+    const getFilteredData = async () => {
         try {
-            setError('');
+            let query = '?status=' + status;
+
+            if (previsionDateStart) {
+                query += '&finishPrevisionStart=' + previsionDateStart;
+            }
+
+            if (previsionDateEnd) {
+                query += '&finishPrevisionEnd=' + previsionDateEnd;
+            }
+
+            const result = await executeRequest('task' + query, 'GET');
+            if (result && result.data) {
+                setList(result.data);
+            }
+        } catch (e) {
+            console.log('Ocorreu erro ao buscar dados das tarefas:', e);
+        }
+    }
+
+    const closeModal = () => {
+        setShowModal(false);
+        setLoading(false);
+        setErrorMsg('');
+        setName('');
+        setFinishPrevisionDate('');
+    }
+
+    const createTask = async () => {
+        try {
+            setErrorMsg('');
             if (!name || !finishPrevisionDate) {
-                setError('Favor preencher os campos!');
-                return
+                return setErrorMsg('Favor preencher os campos');
             }
 
             setLoading(true);
@@ -60,50 +77,46 @@ export const Home: NextPage<HomeProps> = ({ setToken }) => {
             const body = {
                 name,
                 finishPrevisionDate
-            };
-
-            const result = await executeRequest('task', 'post', body);
-            if (result && result.data) {
-                getTasks();
             }
+
+            await executeRequest('task', 'POST', body);
+            await getFilteredData();
+            closeModal();
         } catch (e: any) {
-            console.log(`Erro ao efetuar cadastro de tasks: ${e}`);
+            console.log('Ocorreu erro ao cadastrar tarefa:', e);
             if (e?.response?.data?.error) {
-                setError(e.response.data.error);
+                setErrorMsg(e?.response?.data?.error);
             } else {
-                setError(`Erro ao cadastro de tasks, tente novamente.`);
+                setErrorMsg('Ocorreu erro ao cadastrar tarefa');
             }
         }
 
-        setName('');
-        setFinishPrevisionDate('');
         setLoading(false);
-        handleClose();
     }
 
-    const markTaskAsDone = async (task: Task, done: Boolean) => {
-        try {
-            const body = {
-                done
-            };
+    // const markTaskAsDone = async (task: Task, done: Boolean) => {
+    //     try {
+    //         const body = {
+    //             done
+    //         };
 
-            const result = await executeRequest(`task?id=${task._id}`, 'patch', body);
-            if (result && result.data) {
-                getTasks();
-            }
-        } catch (e: any) {
-            console.log(`Erro ao marcar a tarefa como concluida: ${e}`);
-            if (e?.response?.data?.error) {
-                setError(e.response.data.error);
-            } else {
-                setError(`Erro ao marcar a task como concluida, tente novamente.`);
-            }
-        }
-    }
+    //         const result = await executeRequest(`task?id=${task._id}`, 'patch', body);
+    //         if (result && result.data) {
+    //             getTasks();
+    //         }
+    //     } catch (e: any) {
+    //         console.log(`Erro ao marcar a tarefa como concluida: ${e}`);
+    //         if (e?.response?.data?.error) {
+    //             setError(e.response.data.error);
+    //         } else {
+    //             setError(`Erro ao marcar a task como concluida, tente novamente.`);
+    //         }
+    //     }
+    // }
 
     return (
         <>
-            <Header sair={sair} openAddModal={handleShow} />
+            <Header sair={sair} toggleModal={() => setShowModal(!showModal)} />
             <Filter
                 previsionDateStart={previsionDateStart}
                 previsionDateEnd={previsionDateEnd}
@@ -112,60 +125,31 @@ export const Home: NextPage<HomeProps> = ({ setToken }) => {
                 setPrevisionDateEnd={setPrevisionDateEnd}
                 setStatus={setStatus}
             />
-            <Modal show={showModal} onHide={handleClose}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Adiconar uma tarefa</Modal.Title>
-                </Modal.Header>
+            <List tasks={list} getFilteredData={getFilteredData} />
+
+            <Footer toggleModal={() => setShowModal(!showModal)} />
+
+            <Modal
+                show={showModal}
+                onHide={closeModal}
+                className="container-modal">
                 <Modal.Body>
-                    <div className="form">
-                        {error && <p className="error">{error}</p>}
-                        <div className="input">
-                            <input type='text' placeholder="Adicionar uma tarefa"
-                                value={name}
-                                onChange={evento => setName(evento.target.value)}
-                            />
-                        </div>
-                        <div className="input">
-                            <input type='date' placeholder="Data de conclusão"
-                                value={finishPrevisionDate}
-                                onChange={evento => setFinishPrevisionDate(evento.target.value)}
-                            />
-                        </div>
-                        <button onClick={submitAddForm} disabled={loading}>{loading ? '...Carregando' : 'Salvar'}</button>
-                        <button onClick={handleClose}>Cancelar</button>
-                    </div>
+                    <p>Adicionar uma tarefa</p>
+                    {errorMsg && <p className="error">{errorMsg}</p>}
+                    <input type="text" placeholder="Nome da tarefa"
+                        value={name} onChange={e => setName(e.target.value)} />
+                    <input type="text" placeholder="Previsão de conclusão" onFocus={e => e.target.type = "date"} onBlur={e => e.target.type = 'text'}
+                        value={finishPrevisionDate} onChange={e => setFinishPrevisionDate(e.target.value)} />
                 </Modal.Body>
+                <Modal.Footer>
+                    <div className="button col-12">
+                        <button disabled={loading} onClick={createTask}>
+                            {loading ? '...Carregando' : 'Salvar'}
+                        </button>
+                        <span onClick={closeModal}>Cancelar</span>
+                    </div>
+                </Modal.Footer>
             </Modal>
-
-            {
-                tasks.length < 1
-                    ? (
-                        <div>
-                            <img src="/task-not-found.svg" alt="Nenhuma Task encontrada" />
-                            <p>Você ainda não possui tarefas cadastradas</p>
-                        </div>
-                    )
-                    :
-                    tasks.map(task => {
-                        return (
-                            <div key={task._id} className="container-filters">
-                                <div className="task">
-                                    <div className="checkbox">
-                                        <input type="checkbox" checked={task.finishDate !== '-'} onChange={e => markTaskAsDone(task, e.target.checked)} />
-                                    </div>
-                                    <div>
-                                        <p>{task.name}</p>
-                                        <p>Data prevista para conclusão: {task.finishPrevisionDate} - Conclusão em {task.finishDate}</p>
-                                    </div>
-                                </div>
-
-                            </div>
-                        );
-
-                    })
-            }
-
-            <Footer openAddModal={handleShow} />
         </>
     )
 }
